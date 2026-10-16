@@ -45,7 +45,8 @@ def _call(system: str, user: str, usage: dict, effort: str, schema: dict | None 
             messages=[{"role": "user", "content": user}],
             output_config=output_config,
         )
-    except anthropic.AuthenticationError as e:
+    except (anthropic.AuthenticationError, TypeError) as e:
+        # TypeError: the SDK found no credentials at all
         raise LLMError("LLM API key is missing or invalid. Set ANTHROPIC_API_KEY.") from e
     except anthropic.RateLimitError as e:
         raise LLMError("LLM rate limit reached. Please try again in a moment.") from e
