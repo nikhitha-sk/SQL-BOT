@@ -6,7 +6,7 @@ Example: you type *"Which product sold the most last month?"*. The app writes sa
 
 ## Features
 
-- **English to SQL** using Claude (an LLM).
+- **English to SQL** using an LLM: **Google Gemini** (free tier, default) or **Claude**.
 - **Auto charts**: number card, line, bar, pie or scatter, chosen from the shape of the result.
 - **Shows the SQL**, so you can check what was run.
 - **Follow-up questions**: "now only for Karnataka" works because the chat remembers.
@@ -42,7 +42,7 @@ Example: you type *"Which product sold the most last month?"*. The app writes sa
                │
    1. Retriever (RAG) ── finds tables, glossary, good past queries
    2. Prompt builder ─── rules + schema + example rows + chat history + question
-   3. Claude LLM ─────── returns one SELECT query
+   3. LLM (Gemini/Claude) returns one SELECT query
    4. Validator ──────── SQLGlot: SELECT only, allowed tables, LIMIT
    5. Runner ─────────── read-only SQLite connection, 10 s timeout
          └─ on error: send the error back to the LLM and retry (max 2 times)
@@ -61,7 +61,7 @@ To keep the project simple and easy to run, it uses **SQLite** instead of Postgr
 |---|---|
 | Frontend | Next.js 14, Tailwind CSS, Plotly.js |
 | Backend | FastAPI (Python) |
-| LLM | Claude (`claude-opus-5-5`) through the Anthropic SDK |
+| LLM | Gemini (`gemini-3.8-flash`, free tier) or Claude (`claude-opus-5-5`) |
 | Database | SQLite |
 | SQL safety | SQLGlot |
 | Testing | Pytest and an evaluation script |
@@ -77,7 +77,7 @@ backend/
     services/
       retriever.py     RAG search + schema docs + glossary
       prompt.py        prompt builder
-      llm.py           Claude client, token and cost tracking
+      llm.py           Gemini / Claude client, token and cost tracking
       validator.py     SQLGlot safety checks
       runner.py        read-only query runner with timeout
       charts.py        chart picker
@@ -92,7 +92,14 @@ frontend/
 
 ## How to run
 
-You need **Python 3.10+**, **Node.js 18+** and an **Anthropic API key**.
+You need **Python 3.10+**, **Node.js 18+** and a **Gemini API key** (free).
+
+### 0. Get a free Gemini API key
+
+1. Go to https://aistudio.google.com/apikey and sign in with a Google account.
+2. Click **Create API key** and copy it.
+
+No credit card is needed. The free tier has daily and per-minute limits, and Google may use free-tier data to improve its products, so do not upload private data.
 
 ### 1. Backend
 
@@ -101,11 +108,15 @@ cd backend
 pip install -r requirements.txt
 
 # set your API key
-export ANTHROPIC_API_KEY=your-key          # macOS / Linux
-$env:ANTHROPIC_API_KEY="your-key"          # Windows PowerShell
+export GEMINI_API_KEY=your-key             # macOS / Linux / Git Bash
+$env:GEMINI_API_KEY="your-key"             # Windows PowerShell (this terminal only)
+setx GEMINI_API_KEY "your-key"             # Windows, permanent (open a new terminal after)
 
 uvicorn app.main:app --reload --port 8000
 ```
+
+**Use Claude instead (paid):** set `LLM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY=your-key`.
+**Use another model:** set `LLM_MODEL`, for example `LLM_MODEL=gemini-2.5-flash`.
 
 The sample database is created the first time the backend starts. API docs: http://localhost:8000/docs
 
@@ -132,7 +143,7 @@ pytest
 
 The tests check the SQL validator, the chart picker, the chat flow, auto-fix, blocking of DELETE, feedback and CSV upload.
 
-### Accuracy evaluation (uses the real LLM, costs a little money)
+### Accuracy evaluation (uses the real LLM)
 
 ```bash
 cd backend
@@ -140,6 +151,8 @@ python -m eval.run_eval                 # full app: RAG + glossary + examples
 python -m eval.run_eval --mode basic    # basic prompt, for comparison
 python -m eval.run_eval --limit 5       # quick run on 5 questions
 ```
+
+Each question makes 1 to 3 LLM calls. On the Gemini free tier this is free, but a full run can hit the per-minute limit; the app waits and retries automatically. With Claude it costs about $1 to $2 per full run.
 
 The report is saved to `backend/eval/report.json`. Open the **Evaluation** page in the app to see accuracy, time, cost and failed cases.
 

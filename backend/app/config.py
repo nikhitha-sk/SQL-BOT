@@ -8,9 +8,15 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 BUSINESS_DB = DATA_DIR / "business.db"  # data users ask about
 APP_DB = DATA_DIR / "app.db"  # history, logs, feedback, good queries
 
-MODEL = os.getenv("LLM_MODEL", "claude-opus-5-5")
-PRICE_INPUT_PER_M = 4.00  # USD per 1M input tokens (Claude Opus 5.5)
-PRICE_OUTPUT_PER_M = 20.00  # USD per 1M output tokens
+# "gemini" (free tier) or "anthropic" (Claude, paid)
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").lower()
+DEFAULT_MODELS = {"gemini": "gemini-3.8-flash", "anthropic": "claude-opus-5-5"}
+MODEL = os.getenv("LLM_MODEL", DEFAULT_MODELS[LLM_PROVIDER])
+
+# USD per 1M tokens (input, output). Gemini free tier costs nothing.
+PRICES = {"gemini": (0.0, 0.0), "anthropic": (4.00, 20.00)}
+PRICE_INPUT_PER_M = float(os.getenv("PRICE_INPUT_PER_M", PRICES[LLM_PROVIDER][0]))
+PRICE_OUTPUT_PER_M = float(os.getenv("PRICE_OUTPUT_PER_M", PRICES[LLM_PROVIDER][1]))
 
 ROW_LIMIT = 1000
 QUERY_TIMEOUT_SECONDS = 10
