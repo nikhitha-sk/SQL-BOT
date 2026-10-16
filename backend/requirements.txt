@@ -1,0 +1,8 @@
+fastapi==0.143.3
+uvicorn==0.54.0
+anthropic==1.15.0
+sqlglot==30.23.0
+pandas==2.3.3
+python-multipart==0.0.32
+pytest==9.1.1
+httpx==0.28.1
