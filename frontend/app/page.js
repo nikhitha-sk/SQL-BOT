@@ -26,7 +26,9 @@ export default function ChatPage() {
   const fileRef = useRef(null);
 
   useEffect(() => setSessionId(newSession()), []);
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   const ask = async (text) => {
     const question = (text ?? input).trim();
