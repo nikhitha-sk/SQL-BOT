@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { RefreshCw, ThumbsDown, ThumbsUp } from "lucide-react";
 import PageHeader, { StatCard } from "@/components/PageHeader";
+import SqlView from "@/components/SqlView";
 import { api, formatCost, formatMs } from "@/lib/api";
 
 export default function HistoryPage() {
@@ -77,7 +78,7 @@ export default function HistoryPage() {
                   {open === r.id && (
                     <tr className="bg-slate-50">
                       <td colSpan={7} className="px-5 py-3">
-                        <pre className="scrollbar-thin overflow-x-auto rounded-lg bg-ink-900 p-3 font-mono text-xs text-slate-100">{r.sql || "No SQL was run."}</pre>
+                        {r.sql ? <SqlView sql={r.sql} /> : <p className="text-sm text-ink-500">No SQL was run.</p>}
                       </td>
                     </tr>
                   )}

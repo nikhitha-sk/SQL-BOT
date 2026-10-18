@@ -27,7 +27,7 @@ export default function SqlView({ sql }) {
       <button onClick={copy} className="absolute right-3 top-3 rounded-md bg-white/10 p-1.5 text-slate-300 hover:bg-white/20" title="Copy SQL">
         {copied ? <Check size={14} /> : <Copy size={14} />}
       </button>
-      <pre className="scrollbar-thin overflow-x-auto p-4 pr-12 font-mono text-[13px] leading-relaxed text-slate-100">
+      <pre className="whitespace-pre-wrap break-words p-4 pr-12 font-mono text-[13px] leading-relaxed text-slate-100">
         <code dangerouslySetInnerHTML={{ __html: highlight(pretty) }} />
       </pre>
     </div>
